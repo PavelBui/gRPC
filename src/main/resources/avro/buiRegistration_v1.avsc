@@ -1,0 +1,13 @@
+{
+    "type": "record",
+    "namespace": "com.epam.learning.backendservices.kafka",
+    "name": "BuiRegistration",
+    "version": "1",
+    "fields": [
+        { "name": "number", "type": "string", "doc": "Number of car" },
+        { "name": "color", "type": "string", "doc": "Color of car" },
+        { "name": "type", "type": "string", "doc": "Type of car" },
+        { "name": "left_side_drive", "type": "boolean", "doc": "Side of the driver: true - left, false - right" },
+        { "name": "doors_number", "type": "int", "doc": "Number of doors" }
+    ]
+}
