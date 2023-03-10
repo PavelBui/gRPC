@@ -1,5 +1,6 @@
 package com.epam.learning.backendservices.kafka;
 
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -16,19 +17,21 @@ public class AvroConsumer {
     public static void main(String[] args) {
 
         Properties properties = new Properties();
-        properties.setProperty("bootstrap.servers", "localhost:9092");
-        properties.setProperty("acks", "1");
-        properties.setProperty("retries", "10");
-        properties.setProperty("key.deserializer", StringDeserializer.class.getName());
-        properties.setProperty("value.deserializer", BuiDeserializer.class.getName());
+        properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        properties.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, "bui");
+        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "bui_group");
+        properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, BuiDeserializer.class.getName());
 
-        KafkaConsumer<String, BuiRegistration> kafkaConsumer = new KafkaConsumer<String, BuiRegistration>(properties);
+        KafkaConsumer<String, BuiRegistration> kafkaConsumer = new KafkaConsumer<>(properties);
         String topic = "bui_kafka_topic";
         kafkaConsumer.subscribe(List.of(topic));
 
         AtomicReference<BuiRegistration> msgCons = new AtomicReference<>();
 
-        ConsumerRecords<String, BuiRegistration> records = kafkaConsumer.poll(5);
+        ConsumerRecords<String, BuiRegistration> records = kafkaConsumer.poll(5000);
+
         records.forEach(record -> {
             msgCons.set(record.value());
             logger.info("Message received " + record.value());
