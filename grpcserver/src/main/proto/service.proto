@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package com.epam.learning.backendservices.grpcservice;
+
+option java_package = "com.epam.learning.backendservices.grpcservice";
+option java_multiple_files = true;
+
+service PingPongService{
+	rpc getPing(PingRequest) returns (PongResponce);
+}
+
+message PingRequest{
+	string ping = 1;
+	int32 sn = 2;
+}
+
+message PongResponce{
+	string pong = 1;
+	int32 sn = 2;
+}
+ 
