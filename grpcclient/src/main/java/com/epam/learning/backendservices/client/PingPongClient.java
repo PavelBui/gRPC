@@ -39,19 +39,19 @@ public class PingPongClient {
     }
 
     public static void main(String[] args) throws IOException {
-        InputStream inputStream = PingPongClient.class.getClassLoader().getResourceAsStream("grpcclient.properties");
-        Properties properties = new Properties();
-        properties.load(inputStream);
-        String host = properties.getProperty("grpc.host");
-        String port = properties.getProperty("grpc.port");
-        ManagedChannel channel = ManagedChannelBuilder.forTarget(host + ":" + port)
-                .usePlaintext().build();
-        PingPongClient pingPongClient = new PingPongClient(channel);
-        PingPongEntity pingPongEntityIn = new PingPongEntity(17, "Ping");
-        PingPongEntity pingPongEntityOut = pingPongClient.getPong(pingPongEntityIn);
-        logger.info("Ping-pong result:\n" +
-                         "   Ping: " + pingPongEntityIn.getSn() + " - " + pingPongEntityIn.getSubject() + "\n" +
-                         "   Pong: " + pingPongEntityOut.getSn() + " - " + pingPongEntityOut.getSubject());
-
+        try (InputStream inputStream = PingPongClient.class.getClassLoader().getResourceAsStream("grpcclient.properties")) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            String host = properties.getProperty("grpc.host");
+            String port = properties.getProperty("grpc.port");
+            ManagedChannel channel = ManagedChannelBuilder.forTarget(host + ":" + port)
+                    .usePlaintext().build();
+            PingPongClient pingPongClient = new PingPongClient(channel);
+            PingPongEntity pingPongEntityIn = new PingPongEntity(17, "Ping");
+            PingPongEntity pingPongEntityOut = pingPongClient.getPong(pingPongEntityIn);
+            logger.info("Ping-pong result:\n" +
+                    "   Ping: " + pingPongEntityIn.getSn() + " - " + pingPongEntityIn.getSubject() + "\n" +
+                    "   Pong: " + pingPongEntityOut.getSn() + " - " + pingPongEntityOut.getSubject());
+        }
     }
 }

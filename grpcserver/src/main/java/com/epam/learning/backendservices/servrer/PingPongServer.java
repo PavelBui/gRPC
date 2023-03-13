@@ -17,11 +17,10 @@ public class PingPongServer {
     private Server server;
 
     public void startServer() throws IOException {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("grpcserver.properties");
-        Properties properties = new Properties();
-        properties.load(inputStream);
-        int port = Integer.parseInt(properties.getProperty("grpc.port"));
-        try {
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("grpcserver.properties")) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            int port = Integer.parseInt(properties.getProperty("grpc.port"));
             server = ServerBuilder
                     .forPort(port)
                     .addService(new PingPongServiceImpl())

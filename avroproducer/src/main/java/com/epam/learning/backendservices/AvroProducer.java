@@ -13,32 +13,33 @@ public class AvroProducer {
     private static final Logger logger = Logger.getLogger(AvroProducer.class.getName());
 
     public static void main(String[] args) throws IOException {
-        InputStream inputStream = AvroProducer.class.getClassLoader().getResourceAsStream("avroproducer.properties");
-        Properties properties = new Properties();
-        properties.load(inputStream);
+        try (InputStream inputStream = AvroProducer.class.getClassLoader().getResourceAsStream("avroproducer.properties")) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
 
-        KafkaProducer<String, BuiRegistration> kafkaProducer = new KafkaProducer<>(properties);
-        String topic = "bui_kafka_topic";
-        BuiRegistration buiRegistration = BuiRegistration.newBuilder()
-                .setNumber("3759 AA-3")
-                .setColor("orange")
-                .setType("sedan")
-                .setLeftSideDrive(true)
-                .setDoorsNumber(4).build();
+            KafkaProducer<String, BuiRegistration> kafkaProducer = new KafkaProducer<>(properties);
+            String topic = properties.getProperty("avro.topic");
+            BuiRegistration buiRegistration = BuiRegistration.newBuilder()
+                    .setNumber("3759 AA-3")
+                    .setColor("orange")
+                    .setType("sedan")
+                    .setLeftSideDrive(true)
+                    .setDoorsNumber(4).build();
 
-        ProducerRecord<String, BuiRegistration> producerRecord = new ProducerRecord<>(topic, buiRegistration);
+            ProducerRecord<String, BuiRegistration> producerRecord = new ProducerRecord<>(topic, buiRegistration);
 
-        kafkaProducer.send(producerRecord, new Callback() {
-            @Override
-            public void onCompletion(RecordMetadata recordMetadata, Exception e) {
-                if (e == null) {
-                    logger.info("Success! Metadata: " + recordMetadata.toString());
-                } else {
-                    logger.info("Error! Exception: " + e);
+            kafkaProducer.send(producerRecord, new Callback() {
+                @Override
+                public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+                    if (e == null) {
+                        logger.info("Success! Metadata: " + recordMetadata.toString());
+                    } else {
+                        logger.info("Error! Exception: " + e);
+                    }
                 }
-            }
-        });
-        kafkaProducer.flush();
-        kafkaProducer.close();
+            });
+            kafkaProducer.flush();
+            kafkaProducer.close();
+        }
     }
 }

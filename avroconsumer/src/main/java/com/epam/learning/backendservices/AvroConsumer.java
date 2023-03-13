@@ -16,23 +16,24 @@ public class AvroConsumer {
     private static final Logger logger = Logger.getLogger(AvroConsumer.class.getName());
 
     public static void main(String[] args) throws IOException {
-        InputStream inputStream = AvroConsumer.class.getClassLoader().getResourceAsStream("avroconsumer.properties");
-        Properties properties = new Properties();
-        properties.load(inputStream);
+        try (InputStream inputStream = AvroConsumer.class.getClassLoader().getResourceAsStream("avroconsumer.properties"))
+        {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            KafkaConsumer<String, BuiRegistration> kafkaConsumer = new KafkaConsumer<>(properties);
+            String topic = properties.getProperty("avro.topic");
+            kafkaConsumer.subscribe(List.of(topic));
 
-        KafkaConsumer<String, BuiRegistration> kafkaConsumer = new KafkaConsumer<>(properties);
-        String topic = "bui_kafka_topic";
-        kafkaConsumer.subscribe(List.of(topic));
+            AtomicReference<BuiRegistration> msgCons = new AtomicReference<>();
 
-        AtomicReference<BuiRegistration> msgCons = new AtomicReference<>();
+            ConsumerRecords<String, BuiRegistration> records = kafkaConsumer.poll(5000);
 
-        ConsumerRecords<String, BuiRegistration> records = kafkaConsumer.poll(5000);
+            records.forEach(record -> {
+                msgCons.set(record.value());
+                logger.info("Message received " + record.value());
+            });
 
-        records.forEach(record -> {
-            msgCons.set(record.value());
-            logger.info("Message received " + record.value());
-        });
-
-        kafkaConsumer.close();
+            kafkaConsumer.close();
+        }
     }
 }
